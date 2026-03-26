@@ -17,6 +17,8 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.53",
+    "ai": "^6.0.140",
     "commander": "^13.1.0",
     "liquidjs": "^10.25.2",
     "markdown-it": "^14.1.1",

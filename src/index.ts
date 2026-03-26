@@ -19,6 +19,8 @@ interface AppConfig {
     instructor?: string
     university?: string
     title?: string
+    language?: string
+    logoPath?: string
   }
   probes?: Record<string, boolean>
   outputs?: {
@@ -31,6 +33,12 @@ interface AppConfig {
 async function loadConfig(): Promise<AppConfig> {
   const raw = await fs.readFile(defaultConfigPath, 'utf-8')
   return JSON.parse(raw)
+}
+
+function normalizeUrl(url: string): string {
+  return url.startsWith('http://') || url.startsWith('https://')
+    ? url
+    : `https://${url}`
 }
 
 function parseProbeOverrides(
@@ -62,7 +70,7 @@ function parseOutputOverrides(
 }
 
 async function buildMetaAndGeneratePdf(
-  report: ReconReport,
+  reports: ReconReport[],
   outputDir: string,
   config: AppConfig,
   overrides: {
@@ -72,33 +80,49 @@ async function buildMetaAndGeneratePdf(
     instructor?: string
     university?: string
     title?: string
-    template?: string
+    language?: string
   },
 ) {
+  if (!process.env.GEMINI_API_KEY) {
+    console.warn('⚠️  GEMINI_API_KEY not set — skipping PDF generation')
+    return
+  }
+
   const m = config.meta
-  const safeName = report.domain.replace(/[^a-zA-Z0-9.-]/g, '_')
-  const pdfPath = path.join(outputDir, `${safeName}.pdf`)
+
+  const pdfName =
+    reports.length === 1
+      ? (reports[0]?.domain ?? 'report')
+          .toLowerCase()
+          .replace(/[^a-z0-9.-]/g, '-')
+      : `multi-target-${reports.map((r) => r.domain.toLowerCase().replace(/[^a-z0-9.-]/g, '-')).join('-')}`
+  const pdfPath = path.join(outputDir, `${pdfName}.pdf`)
+
+  const language = overrides.language ?? m.language ?? 'English'
 
   const meta: ReportMeta = {
-    title: overrides.title ?? m.title ?? 'OSINT Reconnaissance Report',
+    title: `${overrides.title ?? m.title ?? 'OSINT Reconnaissance Report'} - ${reports.map((r) => r.domain).join(', ')}`,
     student: overrides.student ?? m.student,
     studentId: overrides.studentId ?? m.studentId,
     course: overrides.course ?? m.course,
     instructor: overrides.instructor ?? m.instructor,
     university: overrides.university ?? m.university,
-    domain: report.domain,
-    timestamp: report.timestamp,
-    target: report.target,
+    targets: reports.map((r) => ({ url: r.target, domain: r.domain })),
+    timestamp: reports[0]?.timestamp ?? new Date().toISOString(),
+    language,
+    logoPath: m.logoPath
+      ? path.resolve(path.dirname(defaultConfigPath), m.logoPath)
+      : undefined,
   }
 
   console.log(`🔄 Generating PDF report...`)
-  await generatePdf(
-    report as unknown as Record<string, unknown>,
-    pdfPath,
-    meta,
-    overrides.template,
-  )
-  console.log(`📕 PDF report: ${pdfPath}`)
+  try {
+    await generatePdf(reports, pdfPath, meta, language)
+    console.log(`📕 PDF report: ${pdfPath}`)
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e)
+    console.error(`❌ PDF generation failed: ${message}`)
+  }
 }
 
 const probeKeys =
@@ -114,6 +138,7 @@ program
       'CLI flags override config values for the current run.',
   )
   .version('1.0.0')
+  .enablePositionalOptions()
 
 // --- shared option helpers ---
 function addMetaOptions(cmd: Command): Command {
@@ -124,6 +149,10 @@ function addMetaOptions(cmd: Command): Command {
     .option('--instructor <name>', 'Instructor name')
     .option('--university <name>', 'University name')
     .option('--title <title>', 'Report title')
+    .option(
+      '--language <lang>',
+      'Report language (e.g. English, Polish, French)',
+    )
 }
 
 function addProbeOptions(cmd: Command): Command {
@@ -155,6 +184,7 @@ interface MetaOpts {
   instructor?: string
   university?: string
   title?: string
+  language?: string
 }
 
 interface ProbeOpts {
@@ -171,14 +201,15 @@ interface OutputOpts {
 // --- recon command ---
 const reconCmd = new Command('recon')
   .description(
-    'Run passive reconnaissance against a target URL.\n\n' +
+    'Run passive reconnaissance against one or more target URLs.\n\n' +
       'Examples:\n' +
       '  $ pnpm start -- recon -u https://example.com\n' +
+      '  $ pnpm start -- recon -u example.com other.com --pdf\n' +
       '  $ pnpm start -- recon -u example.com --disable-probes dorks,puppeteer --pdf',
   )
   .requiredOption(
-    '-u, --url <url>',
-    'Target URL (e.g. https://www.put.poznan.pl)',
+    '-u, --url <urls...>',
+    'Target URL(s) — pass multiple to generate a combined multi-target report',
   )
   .option('-o, --output <dir>', 'Output directory for reports', './reports')
 
@@ -188,12 +219,9 @@ addOutputOptions(reconCmd)
 
 reconCmd.action(
   async (
-    opts: { url: string; output: string } & MetaOpts & ProbeOpts & OutputOpts,
+    opts: { url: string[]; output: string } & MetaOpts & ProbeOpts & OutputOpts,
   ) => {
-    let url = opts.url
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = `https://${url}`
-    }
+    const urls = opts.url.map(normalizeUrl)
 
     try {
       const config = await loadConfig()
@@ -204,11 +232,18 @@ reconCmd.action(
       )
       const outputs = parseOutputOverrides(opts, config.outputs)
 
-      const report = await runPipeline(url, probes)
-      await saveReport(report, opts.output, outputs)
+      // Run all pipelines in parallel
+      const reports = await Promise.all(
+        urls.map((url) => runPipeline(url, probes)),
+      )
+
+      // Save individual JSON/MD outputs per target
+      await Promise.all(
+        reports.map((report) => saveReport(report, opts.output, outputs)),
+      )
 
       if (outputs.pdf) {
-        await buildMetaAndGeneratePdf(report, opts.output, config, opts)
+        await buildMetaAndGeneratePdf(reports, opts.output, config, opts)
       }
     } catch (e) {
       console.error('Fatal error:', e)
@@ -222,34 +257,31 @@ program.addCommand(reconCmd)
 // --- report command ---
 const reportCmd = new Command('report')
   .description(
-    'Generate a PDF academic report from an existing JSON report.\n\n' +
+    'Generate a PDF academic report from one or more existing JSON reports.\n\n' +
       'Examples:\n' +
       '  $ pnpm start -- report ./reports/example.com.json\n' +
-      '  $ pnpm start -- report ./reports/example.com.json --student "Jan Kowalski"\n' +
-      '  $ pnpm start -- report ./reports/example.com.json --template ./my-template.md',
+      '  $ pnpm start -- report ./reports/a.com.json ./reports/b.com.json\n' +
+      '  $ pnpm start -- report ./reports/example.com.json --language Polish',
   )
-  .argument('<json-file>', 'Path to the JSON report file')
-  .option('--template <path>', 'Path to a custom Liquid/Markdown template')
+  .argument('<json-files...>', 'Path(s) to JSON report file(s)')
   .option(
     '-o, --output <dir>',
-    'Output directory (defaults to same directory as input file)',
+    'Output directory (defaults to directory of first input file)',
   )
 
 addMetaOptions(reportCmd)
 
 reportCmd.action(
-  async (
-    jsonFile: string,
-    opts: { template?: string; output?: string } & MetaOpts,
-  ) => {
+  async (jsonFiles: string[], opts: { output?: string } & MetaOpts) => {
     try {
       const config = await loadConfig()
 
-      const raw = await fs.readFile(jsonFile, 'utf-8')
-      const report: ReconReport = JSON.parse(raw)
+      const reports: ReconReport[] = await Promise.all(
+        jsonFiles.map(async (f) => JSON.parse(await fs.readFile(f, 'utf-8'))),
+      )
 
-      const outputDir = opts.output ?? path.dirname(jsonFile)
-      await buildMetaAndGeneratePdf(report, outputDir, config, opts)
+      const outputDir = opts.output ?? path.dirname(jsonFiles[0] ?? '.')
+      await buildMetaAndGeneratePdf(reports, outputDir, config, opts)
     } catch (e) {
       console.error('Fatal error:', e)
       process.exit(1)
@@ -269,10 +301,7 @@ program
       return
     }
 
-    let url = opts.url
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = `https://${url}`
-    }
+    const url = normalizeUrl(opts.url)
 
     try {
       const config = await loadConfig()
@@ -280,7 +309,7 @@ program
       await saveReport(report, opts.output, config.outputs)
 
       if (config.outputs?.pdf) {
-        await buildMetaAndGeneratePdf(report, opts.output, config, {})
+        await buildMetaAndGeneratePdf([report], opts.output, config, {})
       }
     } catch (e) {
       console.error('Fatal error:', e)

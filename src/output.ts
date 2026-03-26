@@ -9,7 +9,7 @@ export async function saveReport(
 ) {
   await fs.mkdir(outputDir, { recursive: true })
 
-  const safeName = report.domain.replace(/[^a-zA-Z0-9.-]/g, '_')
+  const safeName = report.domain.toLowerCase().replace(/[^a-z0-9.-]/g, '-')
 
   if (outputs?.json !== false) {
     const jsonPath = path.join(outputDir, `${safeName}.json`)

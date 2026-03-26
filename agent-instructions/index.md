@@ -26,6 +26,21 @@ Put in `.env` at the project root — loaded automatically via `node --env-file=
 | Variable | Required | Description |
 |---|---|---|
 | `BRAVE_API_KEY` | For dork results | Brave Search API — free tier (2000 req/month) at https://api.search.brave.com |
+| `GEMINI_API_KEY` | For PDF reports | Google Gemini API key — required for AI-generated academic PDF reports (free tier available at aistudio.google.com) |
+| `GEMINI_MODEL` | Optional | Gemini model to use (default: `gemini-2.0-flash`) |
+
+## AI Report Generation
+
+When `GEMINI_API_KEY` is set, PDF reports are fully written by Gemini in academic style. The model receives the full probe JSON and the `agent-instructions/` files as system context, then generates a complete, structured academic report with per-probe analysis and conclusions.
+
+Without `GEMINI_API_KEY`, PDF generation is skipped with a warning — only JSON and Markdown outputs are written.
+
+The `language` field in `config.json` (or `--language` CLI flag) controls the output language of the entire report, including headings.
+
+```bash
+pnpm recon -- --url example.com --pdf --language Polish
+pnpm report ./reports/example.com.json --language French
+```
 
 ## Files in This Directory
 

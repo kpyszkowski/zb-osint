@@ -16,7 +16,9 @@
         "course": { "type": "string", "description": "Course name" },
         "instructor": { "type": "string", "description": "Instructor / teacher name" },
         "university": { "type": "string", "description": "University name" },
-        "title": { "type": "string", "description": "Report title", "default": "OSINT Reconnaissance Report" }
+        "title": { "type": "string", "description": "Report title", "default": "OSINT Reconnaissance Report" },
+        "language": { "type": "string", "description": "Report language for AI-generated PDF (e.g. English, Polish, French)", "default": "English" },
+        "logoPath": { "type": "string", "description": "Path to university/institution logo image for the PDF title page (relative to project root)", "default": "./assets/logo.png" }
       },
       "required": ["student", "course"],
       "additionalProperties": false
@@ -46,7 +48,7 @@
       "properties": {
         "json": { "type": "boolean", "description": "JSON report with full probe data", "default": true },
         "md": { "type": "boolean", "description": "Markdown report (human-readable)", "default": true },
-        "pdf": { "type": "boolean", "description": "PDF academic report (uses meta + Liquid template)", "default": false }
+        "pdf": { "type": "boolean", "description": "PDF academic report (AI-generated, requires OPENAI_API_KEY)", "default": false }
       },
       "additionalProperties": false
     }
