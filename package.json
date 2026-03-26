@@ -1,0 +1,43 @@
+{
+  "name": "zb-osint",
+  "version": "1.0.0",
+  "description": "OSINT website reconnaissance CLI tool",
+  "type": "module",
+  "bin": "dist/index.mjs",
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "postinstall": "pnpm dlx puppeteer browsers install chrome",
+    "build": "tsdown",
+    "recon": "tsdown && node --env-file=.env dist/index.mjs",
+    "lint": "eslint . --max-warnings 0",
+    "format": "eslint . --fix",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^13.1.0",
+    "puppeteer": "^24.6.0",
+    "robots-parser": "^3.0.1",
+    "whois-json": "^2.0.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.3.0",
+    "jiti": "^2.6.1",
+    "prettier": "^3.6.2",
+    "tsdown": "^0.20.1",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.37.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "puppeteer"
+    ]
+  }
+}
