@@ -67,6 +67,10 @@ export const dorksProbe: Probe = async (url) => {
   const results: Record<string, DorkEntry> = {}
 
   if (!apiKey) {
+    console.warn(
+      '⚠️  BRAVE_API_KEY not set — skipping dork searches, queries listed for manual use',
+    )
+    console.warn()
     for (const [key, query] of Object.entries(dorks)) {
       results[key] = {
         query,
