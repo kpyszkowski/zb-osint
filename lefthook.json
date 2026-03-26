@@ -1,0 +1,15 @@
+{
+  "output": ["summary", "failure", "execution_out"],
+  "pre-commit": {
+    "commands": {
+      "lint-fix": {
+        "priority": 1,
+        "run": "pnpm format && git diff --cached --name-only --diff-filter=d | xargs git add"
+      },
+      "check-types": {
+        "priority": 2,
+        "run": "pnpm check-types"
+      }
+    }
+  }
+}
