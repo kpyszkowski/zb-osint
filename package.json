@@ -11,7 +11,7 @@
   "scripts": {
     "postinstall": "pnpm dlx puppeteer browsers install chrome",
     "build": "tsdown",
-    "recon": "tsdown && node --env-file=.env dist/index.mjs",
+    "recon": "tsdown --logLevel silent && node --env-file=.env dist/index.mjs",
     "lint": "eslint . --max-warnings 0",
     "format": "eslint . --fix",
     "check-types": "tsc --noEmit"
