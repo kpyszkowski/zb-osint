@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "zb-osint Configuration",
+  "description": "Configuration for OSINT reconnaissance, probe selection, and report generation.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "meta": {
+      "type": "object",
+      "description": "Student and report metadata for PDF academic reports.",
+      "properties": {
+        "student": { "type": "string", "description": "Student full name" },
+        "studentId": { "type": "string", "description": "Student ID number" },
+        "course": { "type": "string", "description": "Course name" },
+        "instructor": { "type": "string", "description": "Instructor / teacher name" },
+        "university": { "type": "string", "description": "University name" },
+        "title": { "type": "string", "description": "Report title", "default": "OSINT Reconnaissance Report" }
+      },
+      "required": ["student", "course"],
+      "additionalProperties": false
+    },
+    "probes": {
+      "type": "object",
+      "description": "Enable or disable individual OSINT probes. Set to false to skip a probe during recon.",
+      "properties": {
+        "dns": { "type": "boolean", "description": "DNS Records (A, AAAA, MX, NS, TXT, SOA, CNAME)", "default": true },
+        "whois": { "type": "boolean", "description": "WHOIS domain registration info", "default": true },
+        "ssl": { "type": "boolean", "description": "SSL/TLS certificate analysis", "default": true },
+        "headers": { "type": "boolean", "description": "HTTP headers & security headers audit", "default": true },
+        "techstack": { "type": "boolean", "description": "Technology stack detection", "default": true },
+        "robots": { "type": "boolean", "description": "robots.txt parsing", "default": true },
+        "subdomains": { "type": "boolean", "description": "Subdomain enumeration via crt.sh CT logs", "default": true },
+        "puppeteer": { "type": "boolean", "description": "Headless browser analysis (JS libs, network, metadata)", "default": true },
+        "wayback": { "type": "boolean", "description": "Wayback Machine historical snapshots", "default": true },
+        "dorks": { "type": "boolean", "description": "Search engine dorking (requires BRAVE_API_KEY)", "default": true },
+        "common-paths": { "type": "boolean", "description": "Common sensitive path discovery", "default": true },
+        "http-redirect": { "type": "boolean", "description": "HTTP to HTTPS redirect analysis", "default": true }
+      },
+      "additionalProperties": false
+    },
+    "outputs": {
+      "type": "object",
+      "description": "Which output formats to generate.",
+      "properties": {
+        "json": { "type": "boolean", "description": "JSON report with full probe data", "default": true },
+        "md": { "type": "boolean", "description": "Markdown report (human-readable)", "default": true },
+        "pdf": { "type": "boolean", "description": "PDF academic report (uses meta + Liquid template)", "default": false }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["meta", "probes", "outputs"],
+  "additionalProperties": false
+}

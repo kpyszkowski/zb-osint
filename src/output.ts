@@ -2,19 +2,27 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { type ReconReport } from './types.js'
 
-export async function saveReport(report: ReconReport, outputDir: string) {
+export async function saveReport(
+  report: ReconReport,
+  outputDir: string,
+  outputs?: { json?: boolean; md?: boolean },
+) {
   await fs.mkdir(outputDir, { recursive: true })
 
   const safeName = report.domain.replace(/[^a-zA-Z0-9.-]/g, '_')
-  const jsonPath = path.join(outputDir, `${safeName}.json`)
-  const mdPath = path.join(outputDir, `${safeName}.md`)
 
-  await fs.writeFile(jsonPath, JSON.stringify(report, null, 2))
-  console.log(`📄 JSON report: ${jsonPath}`)
+  if (outputs?.json !== false) {
+    const jsonPath = path.join(outputDir, `${safeName}.json`)
+    await fs.writeFile(jsonPath, JSON.stringify(report, null, 2))
+    console.log(`📄 JSON report: ${jsonPath}`)
+  }
 
-  const md = generateMarkdown(report)
-  await fs.writeFile(mdPath, md)
-  console.log(`📝 Markdown report: ${mdPath}`)
+  if (outputs?.md !== false) {
+    const mdPath = path.join(outputDir, `${safeName}.md`)
+    const md = generateMarkdown(report)
+    await fs.writeFile(mdPath, md)
+    console.log(`📝 Markdown report: ${mdPath}`)
+  }
 }
 
 function generateMarkdown(report: ReconReport): string {

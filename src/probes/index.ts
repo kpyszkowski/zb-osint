@@ -12,17 +12,19 @@ import { dorksProbe } from './dorks.js'
 import { commonPathsProbe } from './common-paths.js'
 import { httpRedirectProbe } from './http-redirect.js'
 
-export const allProbes: Probe[] = [
-  dnsProbe,
-  whoisProbe,
-  sslProbe,
-  headersProbe,
-  techstackProbe,
-  robotsProbe,
-  subdomainsProbe,
-  puppeteerProbe,
-  waybackProbe,
-  dorksProbe,
-  commonPathsProbe,
-  httpRedirectProbe,
-]
+export const probeMap: Record<string, Probe> = {
+  dns: dnsProbe,
+  whois: whoisProbe,
+  ssl: sslProbe,
+  headers: headersProbe,
+  techstack: techstackProbe,
+  robots: robotsProbe,
+  subdomains: subdomainsProbe,
+  puppeteer: puppeteerProbe,
+  wayback: waybackProbe,
+  dorks: dorksProbe,
+  'common-paths': commonPathsProbe,
+  'http-redirect': httpRedirectProbe,
+}
+
+export const allProbes: Probe[] = Object.values(probeMap)
