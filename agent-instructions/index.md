@@ -9,12 +9,16 @@ OSINT passive reconnaissance CLI. Runs a pipeline of independent async probes ag
 ## Commands
 
 ```bash
-pnpm build                                          # compile with tsdown
-pnpm recon -- --url https://example.com             # build + run
-pnpm recon -- --url https://example.com --output ./reports
-pnpm lint                                           # ESLint (zero warnings policy)
-pnpm format                                         # ESLint --fix
-pnpm check-types                                    # tsc --noEmit
+pnpm build                                                      # compile with tsdown
+pnpm start -- recon -u https://example.com                      # run recon
+pnpm start -- recon -u https://example.com --output ./reports
+pnpm start -- recon -u example.com other.com --pdf              # multi-target + PDF
+pnpm start -- recon -u example.com --disable-probes dorks,puppeteer
+pnpm start -- report ./reports/example.com.json                 # PDF from existing JSON
+pnpm start -- report ./reports/a.json ./reports/b.json          # multi-target PDF from JSON
+pnpm lint                                                        # ESLint (zero warnings policy)
+pnpm format                                                      # ESLint --fix
+pnpm check-types                                                 # tsc --noEmit
 ```
 
 > Never run with `tsx src/` — always build first. Puppeteer breaks under tsx due to `__name` transform.
@@ -27,7 +31,7 @@ Put in `.env` at the project root — loaded automatically via `node --env-file=
 |---|---|---|
 | `BRAVE_API_KEY` | For dork results | Brave Search API — free tier (2000 req/month) at https://api.search.brave.com |
 | `GEMINI_API_KEY` | For PDF reports | Google Gemini API key — required for AI-generated academic PDF reports (free tier available at aistudio.google.com) |
-| `GEMINI_MODEL` | Optional | Gemini model to use (default: `gemini-2.0-flash`) |
+| `GEMINI_MODEL` | Optional | Gemini model to use (default: `gemini-2.5-flash`) |
 
 ## AI Report Generation
 
@@ -38,8 +42,8 @@ Without `GEMINI_API_KEY`, PDF generation is skipped with a warning — only JSON
 The `language` field in `config.json` (or `--language` CLI flag) controls the output language of the entire report, including headings.
 
 ```bash
-pnpm recon -- --url example.com --pdf --language Polish
-pnpm report ./reports/example.com.json --language French
+pnpm start -- recon -u example.com --pdf --language Polish
+pnpm start -- report ./reports/example.com.json --language French
 ```
 
 ## Files in This Directory

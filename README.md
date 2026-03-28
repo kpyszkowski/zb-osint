@@ -32,20 +32,47 @@ Create a `.env` file for optional features:
 ```env
 # Brave Search API — free tier (2000 req/month): https://api.search.brave.com
 BRAVE_API_KEY=your_key_here
+
+# Google Gemini API — required for AI-generated PDF reports (free tier: aistudio.google.com)
+GEMINI_API_KEY=your_key_here
+# GEMINI_MODEL=gemini-2.5-flash   # optional, this is the default
 ```
+
+## Configuration
+
+Copy `config.json` and fill in your details (student name, course, university, etc.). This file controls default probe toggles, output formats, and report metadata. All fields can be overridden per-run with CLI flags.
 
 ## Usage
 
 ```bash
-pnpm recon -- --url https://example.com
-pnpm recon -- --url https://example.com --output ./reports
+# Single target
+pnpm start -- recon -u https://example.com
+pnpm start -- recon -u example.com --output ./reports
+
+# Multiple targets — generates a combined report
+pnpm start -- recon -u example.com other.com
+
+# Enable PDF output (requires GEMINI_API_KEY)
+pnpm start -- recon -u example.com --pdf
+
+# Control probes
+pnpm start -- recon -u example.com --disable-probes dorks,puppeteer
+pnpm start -- recon -u example.com --enable-probes dorks --disable-probes puppeteer
+
+# Control output formats
+pnpm start -- recon -u example.com --pdf --no-md
+
+# Generate a PDF from existing JSON report(s)
+pnpm start -- report ./reports/example.com.json
+pnpm start -- report ./reports/a.com.json ./reports/b.com.json --language Polish
 ```
 
-The `--url` flag accepts bare domains too (`example.com` → `https://example.com`).
+The `-u` / `--url` flag accepts bare domains (`example.com` → `https://example.com`).
 
 Reports are saved to `./reports/` (or `--output` dir):
 - `example.com.json` — full structured data
 - `example.com.md` — human-readable Markdown
+- `example.com.pdf` — AI-generated academic report (when `--pdf` and `GEMINI_API_KEY` set)
 
 ## Development
 
