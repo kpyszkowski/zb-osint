@@ -232,10 +232,11 @@ reconCmd.action(
       )
       const outputs = parseOutputOverrides(opts, config.outputs)
 
-      // Run all pipelines in parallel
-      const reports = await Promise.all(
-        urls.map((url) => runPipeline(url, probes)),
-      )
+      // Run pipelines sequentially so logs stay grouped per target
+      const reports: ReconReport[] = []
+      for (const url of urls) {
+        reports.push(await runPipeline(url, probes))
+      }
 
       // Save individual JSON/MD outputs per target
       await Promise.all(
