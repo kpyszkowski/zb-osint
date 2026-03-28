@@ -116,7 +116,8 @@ Additional guidelines:
 - Be precise and technical; avoid vague generic statements
 - Academic tone: formal, objective, third-person
 - Format output as Markdown
-- Do NOT include any preamble, meta-commentary, acknowledgment, or transition phrases (e.g. "Below is the report", "As requested", "Prepared in accordance with"). Start directly with the first section heading.`
+- Do NOT include any preamble, meta-commentary, acknowledgment, or transition phrases (e.g. "Below is the report", "As requested", "Prepared in accordance with"). Start directly with the first section heading.
+- On the very first line, before the report, output exactly: \`TOC_HEADING: <translated phrase>\` where <translated phrase> is "Table of Contents" translated to ${language}. Then a blank line, then the report.`
 
   const userContent = [
     `Generate a full academic OSINT reconnaissance report for the following data.`,

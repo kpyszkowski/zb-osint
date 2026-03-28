@@ -64,7 +64,10 @@ function buildTitlePage(meta: ReportMeta, logoDataUri?: string): string {
 </div>`
 }
 
-function buildToc(bodyHtml: string): { toc: string; bodyWithIds: string } {
+function buildToc(
+  bodyHtml: string,
+  tocHeading: string,
+): { toc: string; bodyWithIds: string } {
   const entries: { level: number; text: string; id: string }[] = []
   const idCounts: Record<string, number> = {}
 
@@ -97,7 +100,7 @@ function buildToc(bodyHtml: string): { toc: string; bodyWithIds: string } {
 
   const toc = `
 <div class="toc">
-  <h2 class="toc-heading">Table of Contents</h2>
+  <h2 class="toc-heading">${tocHeading}</h2>
   <ul>${items}</ul>
 </div>
 <div class="page-break"></div>`
@@ -108,10 +111,11 @@ function buildToc(bodyHtml: string): { toc: string; bodyWithIds: string } {
 export function buildHtmlDocument(
   meta: ReportMeta,
   bodyHtml: string,
+  tocHeading: string,
   logoDataUri?: string,
 ): string {
   const titlePage = buildTitlePage(meta, logoDataUri)
-  const { toc, bodyWithIds } = buildToc(bodyHtml)
+  const { toc, bodyWithIds } = buildToc(bodyHtml, tocHeading)
 
   return `<!DOCTYPE html>
 <html lang="en">

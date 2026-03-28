@@ -21,9 +21,13 @@ export async function generatePdf(
 ): Promise<void> {
   console.log(`🤖 Generating AI report (language: ${language ?? 'English'})...`)
   const raw = await generateAiReport(reports, meta, language ?? 'English')
-  // Strip leading H1 — title page already covers this
-  // Strip markdown horizontal rules (--- / *** / ___) — no separators in PDF
-  const reportMd = raw.replace(/^#\s+.+\n+/, '').replace(/^[-*_]{3,}\s*$/gm, '')
+  const tocHeading =
+    raw.match(/^TOC_HEADING:\s*(.+)/m)?.[1]?.trim() ?? 'Table of Contents'
+  // Strip TOC_HEADING line, leading H1, and markdown horizontal rules
+  const reportMd = raw
+    .replace(/^TOC_HEADING:.*\n?/m, '')
+    .replace(/^#\s+.+\n+/, '')
+    .replace(/^[-*_]{3,}\s*$/gm, '')
 
   let logoDataUri: string | undefined
   if (meta.logoPath) {
@@ -38,7 +42,7 @@ export async function generatePdf(
   }
 
   const bodyHtml = md.render(reportMd)
-  const html = buildHtmlDocument(meta, bodyHtml, logoDataUri)
+  const html = buildHtmlDocument(meta, bodyHtml, tocHeading, logoDataUri)
 
   const mod = await import('puppeteer')
   const puppeteer = mod.default ?? mod
