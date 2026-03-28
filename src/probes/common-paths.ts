@@ -1,4 +1,4 @@
-import { type Probe, extractOrigin } from '../types.js'
+import { type Probe, extractOrigin } from '../types'
 
 const PATHS = [
   '/sitemap.xml',

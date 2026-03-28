@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module'
-import { type Probe, extractOrigin } from '../types.js'
+import { type Probe, extractOrigin } from '../types'
 
 const require = createRequire(import.meta.url)
 const robotsParser = require('robots-parser') as (

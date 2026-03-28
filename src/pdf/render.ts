@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import MarkdownIt from 'markdown-it'
-import { generateAiReport } from '../ai/report.js'
-import { buildHtmlDocument, type ReportMeta } from './template.js'
-import type { ReconReport } from '../types.js'
+import { generateAiReport } from '../ai/report'
+import { buildHtmlDocument, type ReportMeta } from './template'
+import type { ReconReport } from '../types'
 
 const md = new MarkdownIt({
   html: false,

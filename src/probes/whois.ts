@@ -1,5 +1,5 @@
 import whois from 'whois-json'
-import { type Probe, extractDomain } from '../types.js'
+import { type Probe, extractDomain } from '../types'
 
 export const whoisProbe: Probe = async (url) => {
   const domain = extractDomain(url)

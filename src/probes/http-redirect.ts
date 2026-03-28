@@ -1,4 +1,4 @@
-import { type Probe, extractDomain } from '../types.js'
+import { type Probe, extractDomain } from '../types'
 
 export const httpRedirectProbe: Probe = async (url) => {
   const domain = extractDomain(url)

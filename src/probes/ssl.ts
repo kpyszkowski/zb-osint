@@ -1,5 +1,5 @@
 import tls from 'node:tls'
-import { type Probe, extractDomain } from '../types.js'
+import { type Probe, extractDomain } from '../types'
 
 export const sslProbe: Probe = async (url) => {
   const domain = extractDomain(url)

@@ -1,4 +1,4 @@
-import { type Probe } from '../types.js'
+import { type Probe } from '../types'
 
 interface TechSignature {
   name: string

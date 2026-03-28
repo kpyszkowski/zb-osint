@@ -1,5 +1,5 @@
 import dns from 'node:dns/promises'
-import { type Probe, extractDomain } from '../types.js'
+import { type Probe, extractDomain } from '../types'
 
 export const dnsProbe: Probe = async (url) => {
   const domain = extractDomain(url)

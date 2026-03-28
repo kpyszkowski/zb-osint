@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { type ReconReport } from './types.js'
+import { type ReconReport } from './types'
 
 export async function saveReport(
   report: ReconReport,

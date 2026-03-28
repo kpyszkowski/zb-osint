@@ -1,4 +1,4 @@
-import { type Probe } from '../types.js'
+import { type Probe } from '../types'
 
 const SECURITY_HEADERS = [
   'content-security-policy',

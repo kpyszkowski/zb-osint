@@ -3,8 +3,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { generateText } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import type { ReconReport, ProbeResult } from '../types.js'
-import type { ReportMeta } from '../pdf/template.js'
+import type { ReconReport, ProbeResult } from '../types'
+import type { ReportMeta } from '../pdf/template'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const agentInstructionsDir = path.resolve(__dirname, '../../agent-instructions')

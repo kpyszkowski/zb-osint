@@ -1,0 +1,32 @@
+{
+  "$schema": "./config.schema.json",
+  "meta": {
+    "student": "Kamil Pyszkowski",
+    "studentId": "149730",
+    "course": "Zarządzanie bezpieczeństwem w systemach IT",
+    "instructor": "",
+    "university": "Politechnika Poznańska",
+    "title": "Sprawozdanie z OSINT",
+    "language": "Polish",
+    "logoPath": "./assets/put-logo.svg"
+  },
+  "probes": {
+    "dns": true,
+    "whois": true,
+    "ssl": true,
+    "headers": true,
+    "techstack": true,
+    "robots": true,
+    "subdomains": true,
+    "puppeteer": true,
+    "wayback": true,
+    "dorks": true,
+    "common-paths": true,
+    "http-redirect": true
+  },
+  "outputs": {
+    "json": true,
+    "md": true,
+    "pdf": false
+  }
+}

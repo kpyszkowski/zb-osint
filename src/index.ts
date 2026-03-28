@@ -2,11 +2,11 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Command } from 'commander'
-import { runPipeline } from './pipeline.js'
-import { saveReport } from './output.js'
-import { type ReconReport } from './types.js'
-import { generatePdf } from './pdf/render.js'
-import { type ReportMeta } from './pdf/template.js'
+import { runPipeline } from './pipeline'
+import { saveReport } from './output'
+import { type ReconReport } from './types'
+import { generatePdf } from './pdf/render'
+import { type ReportMeta } from './pdf/template'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const defaultConfigPath = path.resolve(__dirname, '../config.json')

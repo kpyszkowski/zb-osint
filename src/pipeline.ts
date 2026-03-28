@@ -1,5 +1,5 @@
-import { type ReconReport, extractDomain } from './types.js'
-import { allProbes, probeMap } from './probes/index.js'
+import { type ReconReport, extractDomain } from './types'
+import { allProbes, probeMap } from './probes/index'
 
 export async function runPipeline(
   url: string,
